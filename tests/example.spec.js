@@ -1,49 +1,46 @@
 const { test, expect } = require('@playwright/test');
 
-test('Login, Add item to cart, and Checkout', async ({ page }) => {
-  // Buka halaman Sauce Demo
+test('assertion and locator', async ({ page }) => {
   await page.goto('https://www.saucedemo.com/');
 
-  // Isi form login
-  await page.fill('input[name="user-name"]', 'standard_user'); // Ganti dengan username yang sesuai
-  await page.fill('input[name="password"]', 'secret_sauce');   // Ganti dengan password yang sesuai
+  const inputNama = page.locator('#user-name');
+  await inputNama.fill('standard_user');
+  await expect(inputNama).toHaveValue('standard_user');
 
-  // Klik tombol login
-  await page.click('input[type="submit"]');
+  const inputPassword = page.locator('#password');
+  await inputPassword.fill('secret_sauce');
+  await expect(inputPassword).toHaveValue('secret_sauce');
 
-  // Tunggu sampai halaman utama setelah login
-  await page.waitForSelector('.inventory_list'); // Mengecek apakah elemen produk muncul
+  const loginButton = page.locator('#login-button');
+  await loginButton.click();
 
-  // Pilih produk pertama dan tambah ke keranjang
-  await page.click('.inventory_item button'); // Klik tombol 'Add to cart' pada produk pertama
+  const productLabel = page.locator('.header_secondary_container .title');
+  await expect(productLabel).toHaveText('Products');
 
-  // Verifikasi produk berhasil ditambahkan ke keranjang
-  const cartCount = await page.textContent('.shopping_cart_badge');
-  expect(cartCount).toBe('1'); // Verifikasi jumlah item di keranjang adalah 1
+  const addToCartButton = page.locator('#add-to-cart-sauce-labs-backpack');
+  await addToCartButton.click();
 
-  // Klik ikon keranjang untuk melanjutkan ke halaman checkout
-  await page.click('.shopping_cart_link');
+  const cartButton = page.locator('.shopping_cart_link');
+  await cartButton.click();
 
-  // Tunggu hingga halaman keranjang dimuat
-  await page.waitForSelector('.cart_list');
+  const checkout = page.locator('#checkout');
+  await checkout.click();
 
-  // Klik tombol 'Checkout'
-  await page.click('.checkout_button');
+  const inputNamadepan = page.locator('#first-name');
+  await inputNamadepan.fill('Febi');
 
-  // Isi form informasi checkout
-  await page.fill('input[name="firstName"]', 'John');
-  await page.fill('input[name="lastName"]', 'Doe');
-  await page.fill('input[name="postalCode"]', '12345');
+  const inputNamaTerakhir = page.locator('#last-name');
+  await inputNamaTerakhir.fill('ramdani');
 
-  // Klik tombol 'Continue'
-  await page.click('#continue');
+  const inputKodepos = page.locator('#postal-code');
+  await inputKodepos.fill('12345');
 
-  // Tunggu halaman konfirmasi order
-  await page.waitForSelector('.summary_info');
+  const continueButton = page.locator('#continue');
+  await continueButton.click();
 
-  // Verifikasi halaman konfirmasi checkout muncul
-  const checkoutComplete = await page.isVisible('.summary_info');
-  expect(checkoutComplete).toBe(true);
+  const finishButton = page.locator('#finish');
+  await finishButton.click();
 
-  console.log('Checkout completed successfully!');
+  const completeLabel = page.locator('.complete-header');
+  await expect(completeLabel).toHaveText('Thank you for your order!');
 });
